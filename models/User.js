@@ -9,6 +9,7 @@ const userSchema = mongoose.Schema({
   },
   email: {
     tyepe: String,
+    // todo: trim error 확인해보기
     // trim: true,
   },
   password: {

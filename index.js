@@ -4,6 +4,8 @@ const app = express();
 const port = 5000;
 const bodyParser = require("body-parser");
 
+const config = require("./config/key");
+
 const { User } = require("./models/User");
 
 // application/x-www-form-urlencoded
@@ -13,10 +15,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const mongoose = require("mongoose");
+const req = require("express/lib/request");
 mongoose
-  .connect(
-    "mongodb+srv://admin:0376@nodereact.jqwxu.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-  )
+  .connect(config.mongoURI)
   .then(() => console.log("mongoDB Connected..."))
   .catch((err) => console.log(err));
 
