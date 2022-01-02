@@ -5,6 +5,7 @@ const port = 5000;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const config = require("./config/key");
+const auth = require("./middleware/auth");
 
 const { User } = require("./models/User");
 
@@ -27,7 +28,7 @@ mongoose
 app.get("/", (req, res) => res.send("hello"));
 
 // 회원가입을 위한 route 만들기
-app.post("/register", (req, res) => {
+app.post("/api/users/register", (req, res) => {
   // 회원 가입 할 때 필요한 정보들을 client에서 가져오면
   // 그것들을 DB에 넣어준다
 
@@ -42,7 +43,7 @@ app.post("/register", (req, res) => {
   });
 });
 
-app.post("/login", (req, res) => {
+app.post("/api/users/login", (req, res) => {
   // 요청된 이메일을 데이터 베이스에서 있는지 확인
   User.findOne({ email: req.body.email }, (err, user) => {
     if (!user) {
@@ -75,6 +76,16 @@ app.post("/login", (req, res) => {
     });
   });
   // 비밀번호도 맞으면 user를 위한 token 생성
+});
+
+app.get("/api/users/auth", auth, (req, res) => {
+  // auth: middleware
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0 ? "user" : "admin",
+    email: req.user.email,
+    isAuth: true,
+  });
 });
 
 // 앱을 실행

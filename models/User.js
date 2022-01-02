@@ -39,7 +39,7 @@ const userSchema = mongoose.Schema({
 // 유저 정보를 저장하기 전에 동작
 userSchema.pre("save", function (next) {
   // var user는 위에 있는 userSchema를 가리킨다
-  var user = this;
+  const user = this;
 
   // 비밀번호를 바꿀 때만 암호화 하기
   if (user.isModified("password")) {
@@ -65,6 +65,7 @@ userSchema.pre("save", function (next) {
 userSchema.methods.comparePassword = function (plainPassword, cb) {
   // plainpassword: 1234567  암호화된 비밀번호: ~~~ 를 같은지 확인 해줘야 함
   // plainpassword를 암호화해서 DB 비밀번호와 같은지 확인
+
   bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
     if (err) {
       return cb(err);
@@ -74,15 +75,29 @@ userSchema.methods.comparePassword = function (plainPassword, cb) {
 };
 
 userSchema.methods.generateToken = function (cb) {
-  var user = this;
+  const user = this;
 
   // jsonwebtoken 이용해서 토큰 생성하기
-  var token = jwt.sign(user._id.toHexString(), "secreteToken");
+  const token = jwt.sign(user._id.toHexString(), "secreteToken");
 
   user.token = token;
   user.save(function (err, user) {
     if (err) return cb(err);
     cb(null, user);
+  });
+};
+
+userSchema.statics.findByToken = function (token, cb) {
+  const user = this;
+
+  // 토큰을 decode
+  jwt.verify(token, "secreteToken", function (err, decoded) {
+    // user id를 이요해서 user 찾은 다음에
+    // 클라이언트에서 가져온 토큰과 DB에 보관된 토큰이 일치하는지 확인
+    user.findOne({ _id: decoded, token: token }, function (err, user) {
+      if (err) return cb(err);
+      cb(null, user);
+    });
   });
 };
 
