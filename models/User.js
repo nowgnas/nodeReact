@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+const jwt = require("jsonwebtoken");
 
 // DB 스키마 만들기
 const userSchema = mongoose.Schema({
@@ -9,14 +10,13 @@ const userSchema = mongoose.Schema({
     maxlength: 50,
   },
   email: {
-    tyepe: String,
-    // todo: trim error 확인해보기
-    // trim: true,
-    // unique: 1,
+    type: String,
+    trim: true,
+    unique: 1,
   },
   password: {
     type: String,
-    maxlength: 50,
+    minlength: 5,
   },
   lastname: {
     type: String,
@@ -38,7 +38,7 @@ const userSchema = mongoose.Schema({
 
 // 유저 정보를 저장하기 전에 동작
 userSchema.pre("save", function (next) {
-  // const user는 위에 있는 userSchema를 가리킨다
+  // var user는 위에 있는 userSchema를 가리킨다
   var user = this;
 
   // 비밀번호를 바꿀 때만 암호화 하기
@@ -56,8 +56,35 @@ userSchema.pre("save", function (next) {
         next();
       });
     });
+  } else {
+    // 다른것을 바꿀 때 next()
+    next();
   }
 });
+
+userSchema.methods.comparePassword = function (plainPassword, cb) {
+  // plainpassword: 1234567  암호화된 비밀번호: ~~~ 를 같은지 확인 해줘야 함
+  // plainpassword를 암호화해서 DB 비밀번호와 같은지 확인
+  bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, isMatch);
+  });
+};
+
+userSchema.methods.generateToken = function (cb) {
+  var user = this;
+
+  // jsonwebtoken 이용해서 토큰 생성하기
+  var token = jwt.sign(user._id.toHexString(), "secreteToken");
+
+  user.token = token;
+  user.save(function (err, user) {
+    if (err) return cb(err);
+    cb(null, user);
+  });
+};
 
 const User = mongoose.model("User", userSchema);
 
