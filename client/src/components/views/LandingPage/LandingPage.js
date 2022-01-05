@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
+import axios from "axios";
 
 function LandingPage() {
-  return <div>Landing page</div>;
+  useEffect(() => {
+    axios.get("/api/hello").then((response) => console.log(response.data));
+  });
+  return <div>labdingpage</div>;
 }
 
 export default LandingPage;

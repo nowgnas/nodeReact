@@ -18,6 +18,7 @@ app.use(cookieParser());
 const mongoose = require("mongoose");
 const req = require("express/lib/request");
 const { application } = require("express");
+
 mongoose
   .connect(config.mongoURI)
   .then(() => console.log("mongoDB Connected..."))
@@ -25,6 +26,8 @@ mongoose
 
 // root dir에 출력
 app.get("/", (req, res) => res.send("hello"));
+
+app.get("/api/hello", (req, res) => res.send("hello world "));
 
 // 회원가입을 위한 route 만들기
 app.post("/api/users/register", (req, res) => {
@@ -98,4 +101,4 @@ app.get("/api/users/logout", auth, (req, res) => {
 
 // 앱을 실행
 const port = 5000;
-app.listen(port, () => console.log(`example port ${port}!`));
+app.listen(port, () => console.log(`now ${port} port is runnig!`));
