@@ -19,9 +19,8 @@ ReactDOM.render(
   <Provider
     store={createStoreWithMiddleware(
       Reducer,
-      // redux extention추가 하기
-      window.__REDUX_DEVTOOLS_EXTENTION__ &&
-        window.__REDUX_DEVTOOLS_EXTENTION__()
+      window.__REDUX_DEVTOOLS_EXTENSION__ &&
+        window.__REDUX_DEVTOOLS_EXTENSION__()
     )}
   >
     <App />
